@@ -2,6 +2,7 @@ import ast
 import functools
 import inspect
 import sys
+from pytest import MarkDecorator
 
 try:
     # added in hypothesis 6.131.0
@@ -296,13 +297,21 @@ def _identify_thread_unsafe_nodes(
     return visitor.thread_unsafe, visitor.thread_unsafe_reason
 
 
-cached_thread_unsafe_identify = functools.lru_cache(_identify_thread_unsafe_nodes)
-
+cached_thread_unsafe_identify = functools.lru_cache(maxsize=256)(_identify_thread_unsafe_nodes)
+i = 0
 
 def identify_thread_unsafe_nodes(*args, **kwargs):
+    if isinstance(args[0], MarkDecorator):
+        return False, None
+    global i
+    i += 1
+    if i % 10000 == 0:
+        print("cache_info", cached_thread_unsafe_identify.cache_info())
     try:
         return cached_thread_unsafe_identify(*args, **kwargs)
     except TypeError:
+        print("identify_thread_unsafe_nodes", args[0])
+        #print("identify_thread_unsafe_nodes args[0].__wrapped__", args[0].__wrapped__)
         return _identify_thread_unsafe_nodes(*args, **kwargs)
 
 
