@@ -3,6 +3,8 @@ import functools
 import inspect
 import sys
 
+from pytest import MarkDecorator
+
 try:
     # added in hypothesis 6.131.0
     from hypothesis import is_hypothesis_test
@@ -300,6 +302,8 @@ cached_thread_unsafe_identify = functools.lru_cache(_identify_thread_unsafe_node
 
 
 def identify_thread_unsafe_nodes(*args, **kwargs):
+    if isinstance(args[0], MarkDecorator):
+        return False, None
     try:
         return cached_thread_unsafe_identify(*args, **kwargs)
     except TypeError:
