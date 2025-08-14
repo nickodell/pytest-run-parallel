@@ -302,11 +302,14 @@ cached_thread_unsafe_identify = functools.lru_cache(_identify_thread_unsafe_node
 
 
 def identify_thread_unsafe_nodes(*args, **kwargs):
-    if isinstance(args[0], MarkDecorator):
-        return False, None
     try:
-        return cached_thread_unsafe_identify(*args, **kwargs)
+        hits = cached_thread_unsafe_identify.cache_info().hits
+        ret = cached_thread_unsafe_identify(*args, **kwargs)
+        cache_hit = cached_thread_unsafe_identify.cache_info().hits == hits + 1
+        print("  cache itun", "H" if cache_hit else "_", args[0])
+        return ret
     except TypeError:
+        print("nocache itun", " ", args[0])
         return _identify_thread_unsafe_nodes(*args, **kwargs)
 
 

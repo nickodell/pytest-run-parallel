@@ -150,6 +150,8 @@ class RunParallelPlugin:
             used_unsafe_fixtures = self.unsafe_fixtures & set(fixtures)
             return True, f"uses thread-unsafe fixture(s): {used_unsafe_fixtures}"
 
+        print("Scanning 1", item.name)
+        print("Scanning 2", item.obj)
         return identify_thread_unsafe_nodes(
             item.obj,
             self.skipped_functions,
